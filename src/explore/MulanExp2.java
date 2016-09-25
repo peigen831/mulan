@@ -7,6 +7,8 @@ import java.util.logging.Logger;
 
 import mulan.classifier.MultiLabelLearnerBase;
 import mulan.classifier.MultiLabelOutput;
+import mulan.classifier.lazy.MLkNN;
+import mulan.classifier.meta.RAkEL;
 import mulan.classifier.transformation.BinaryRelevance;
 import mulan.data.MultiLabelInstances;
 import mulan.evaluation.Evaluation;
@@ -23,6 +25,10 @@ import weka.filters.Filter;
 import weka.filters.unsupervised.instance.RemovePercentage;
 
 public class MulanExp2 {
+	public static final String learn_rakel = "rakel";
+	public static final String learn_binaryrelevance = "binaryrelevance";
+	public static final String learn_mlknn = "mlknn";
+	
 	
 	/**
      * Executes this example
@@ -70,7 +76,7 @@ public class MulanExp2 {
 	}
 	
 	//-train data\tt_training.arff -test data\tt_testing.arff -labels data\tt.xml -model model.dat
-	public void storeModel(String trainPath, String labelPath, String modelPath){
+	public void trainAndStoreModel(String learningAlgo, String trainPath, String labelPath, String modelPath){
         try {
 //            String trainingDataFilename = Utils.getOption("train", args);
 //            String labelsFilename = Utils.getOption("labels", args);
@@ -81,14 +87,20 @@ public class MulanExp2 {
             System.out.println("Loading the training data set...");
             MultiLabelInstances trainingData = new MultiLabelInstances(trainingDataFilename, labelsFilename);
             
-            BinaryRelevance learner1 = new BinaryRelevance(new J48());
+            MultiLabelLearnerBase learner = null;
+            if(learningAlgo.equals(MulanExp2.learn_binaryrelevance))
+            	learner = new BinaryRelevance(new J48());
+            else if(learningAlgo.equals(MulanExp2.learn_rakel))
+            	learner = new RAkEL();
+            else if(learningAlgo.equals(MulanExp2.learn_mlknn))
+            	learner = new MLkNN();
 
             String modelFilename = modelPath;
             System.out.println("Building the model...");
-            learner1.build(trainingData);
+            learner.build(trainingData);
 
             System.out.println("Storing the model...");
-            SerializationHelper.write(modelFilename, learner1);
+            SerializationHelper.write(modelFilename, learner);
 
         } catch (Exception ex) {
             Logger.getLogger(StoringAndLoadingModels.class.getName()).log(Level.SEVERE, null, ex);
@@ -124,8 +136,13 @@ public class MulanExp2 {
 	        System.out.println("Loading the testing data set...");
 	        MultiLabelInstances testingData = new MultiLabelInstances(testingDataFilename, labelsFilename);
 	        
+	        //TODO add other leanring algo
 			if(learnerObject instanceof BinaryRelevance)
 				learner = (BinaryRelevance)learnerObject;
+			else if(learnerObject instanceof RAkEL)
+				learner = (RAkEL)learnerObject;
+			else if (learnerObject instanceof MLkNN)
+				learner = (MLkNN)learnerObject;
 			
 			int numInstances = testingData.getNumInstances();
 	        for (int instanceIndex = 0; instanceIndex < numInstances; instanceIndex++) {
@@ -150,9 +167,10 @@ public class MulanExp2 {
     	String trainPath = "data\\tt_training.arff";
     	String testPath = "data\\tt_testing.arff";
     	String labelPath = "data\\tt.xml";
-    	String modelPath = "model.dat";
+    	String modelPath = "data\\model\\mlknn.dat";
 
-    	mulan.storeModel(trainPath, labelPath, modelPath);
+//    	mulan.trainAndStoreModel(MulanExp2.learn_mlknn, trainPath, labelPath, modelPath);
+//    	System.out.println("Done training");
     	Object learnerObject = mulan.loadModel(modelPath);
     	mulan.evaluate(learnerObject, trainPath, testPath, labelPath);
     	
