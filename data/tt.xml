@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<labels xmlns="http://mulan.sourceforge.net/labels">
+<label name="mood_happy"></label>
+<label name="mood_sad"></label>
+<label name="mood_inspired"></label>
+<label name="mood_dont_care"></label>
+<label name="mood_angry"></label>
+<label name="mood_afraid"></label>
+<label name="mood_amused"></label>
+<label name="mood_annoyed"></label>
+</labels>
