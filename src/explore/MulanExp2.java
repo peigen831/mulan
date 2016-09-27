@@ -9,6 +9,7 @@ import mulan.classifier.MultiLabelLearnerBase;
 import mulan.classifier.MultiLabelOutput;
 import mulan.classifier.lazy.MLkNN;
 import mulan.classifier.meta.RAkEL;
+import mulan.classifier.transformation.AdaBoostMH;
 import mulan.classifier.transformation.BinaryRelevance;
 import mulan.data.MultiLabelInstances;
 import mulan.evaluation.Evaluation;
@@ -28,6 +29,7 @@ public class MulanExp2 {
 	public static final String learn_rakel = "rakel";
 	public static final String learn_binaryrelevance = "binaryrelevance";
 	public static final String learn_mlknn = "mlknn";
+	public static final String learn_adaboost = "adaboost";
 	
 	
 	/**
@@ -94,6 +96,8 @@ public class MulanExp2 {
             	learner = new RAkEL();
             else if(learningAlgo.equals(MulanExp2.learn_mlknn))
             	learner = new MLkNN();
+            else if(learningAlgo.equals(MulanExp2.learn_adaboost))
+            	learner = new AdaBoostMH();
 
             String modelFilename = modelPath;
             System.out.println("Building the model...");
@@ -143,6 +147,8 @@ public class MulanExp2 {
 				learner = (RAkEL)learnerObject;
 			else if (learnerObject instanceof MLkNN)
 				learner = (MLkNN)learnerObject;
+			else if (learnerObject instanceof AdaBoostMH)
+            	learner = (AdaBoostMH)learnerObject;
 			
 			int numInstances = testingData.getNumInstances();
 	        for (int instanceIndex = 0; instanceIndex < numInstances; instanceIndex++) {
@@ -167,9 +173,10 @@ public class MulanExp2 {
     	String trainPath = "data\\tt_training.arff";
     	String testPath = "data\\tt_testing.arff";
     	String labelPath = "data\\tt.xml";
-    	String modelPath = "data\\model\\mlknn.dat";
-
-//    	mulan.trainAndStoreModel(MulanExp2.learn_mlknn, trainPath, labelPath, modelPath);
+    	String model = MulanExp2.learn_mlknn;
+    	String modelPath = "data\\model\\"+ model + ".dat";
+    	
+//    	mulan.trainAndStoreModel(model, trainPath, labelPath, modelPath);
 //    	System.out.println("Done training");
     	Object learnerObject = mulan.loadModel(modelPath);
     	mulan.evaluate(learnerObject, trainPath, testPath, labelPath);
